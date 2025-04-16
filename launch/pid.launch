@@ -1,0 +1,47 @@
+<launch>
+    <!-- Запуск ваших узлов SLAM, OctoMap, Path Planner -->
+    <!-- ... -->
+
+    <!-- Запуск Path Follower -->
+    <node pkg="diplom" type="test_pid.py" name="path_follower_node" output="screen">
+        <!-- Переопределение параметров -->
+        <param name="map_frame" value="world"/>
+        <param name="base_frame" value="camera_link"/> <!-- или camera_link, если TF от SLAM идет туда -->
+        <param name="control_rate" value="30.0"/>   <!-- Частота отправки команд -->
+        <param name="target_altitude" value="1.0"/> <!-- Ваша желаемая высота -->
+        <param name="waypoint_tolerance" value="1.0"/>
+        <param name="lookahead_distance" value="1.7"/>
+
+        <!-- Параметры TCP -->
+        <param name="tcp_host" value="127.0.0.1"/>
+        <param name="tcp_port" value="5762"/>
+
+        <!-- Параметры RC (КРИТИЧЕСКИ ВАЖНО НАСТРОИТЬ!) -->
+        <param name="rc_roll_center" value="1500"/>
+        <param name="rc_pitch_center" value="1500"/>
+        <param name="rc_yaw_center" value="1500"/>
+        <param name="rc_throttle_hover" value="1401"/> <!-- НАЙДИТЕ ЭКСПЕРИМЕНТАЛЬНО! -->
+        <param name="rc_min" value="1000"/>
+        <param name="rc_max" value="2000"/>
+        <param name="rc_roll_range" value="250"/>   <!-- +/- от центра -->
+        <param name="rc_pitch_range" value="250"/>  <!-- +/- от центра -->
+        <param name="rc_yaw_range" value="350"/>    <!-- +/- от центра -->
+        <param name="rc_throttle_range" value="5"/> <!-- +/- от ховера -->
+        <param name="arm_value" value="2000"/>      <!-- Уточните значение для ARM -->
+        <param name="disarm_value" value="1000"/>
+        <param name="mode_value" value="1500"/>     <!-- Уточните значение для MODE -->
+
+        <!-- Коэффициенты PID (КРИТИЧЕСКИ ВАЖНО НАСТРОИТЬ!) -->
+        <!-- Высота -->
+        <param name="pid/z/kp" value="180.0"/>
+        <param name="pid/z/ki" value="15.0"/>
+        <param name="pid/z/kd" value="30.0"/>
+        <!-- Коэффициенты для прямого управления Roll/Pitch (не PID XY) -->
+        <param name="gain/roll" value="120.0"/>
+        <param name="gain/pitch" value="120.0"/>
+        <!-- Рыскание -->
+        <param name="pid/yaw/kp" value="180.0"/>
+        <param name="pid/yaw/ki" value="10.0"/>
+        <param name="pid/yaw/kd" value="15.0"/>
+    </node>
+</launch>

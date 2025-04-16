@@ -1,0 +1,16 @@
+# Build directories
+build/
+devel/
+install/
+
+# Log directory (often created by ROS)
+logs/
+
+# Python cache files
+*.pyc
+__pycache__/
+
+# Other common temporary files
+*~
+*.swp
+*.swo

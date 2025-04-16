@@ -1,0 +1,123 @@
+<launch>
+
+    <arg name="map_frame" default="world"/>
+    <arg name="base_frame" default="camera_link"/>
+    <arg name="octomap_topic" default="/octomap_full"/>
+    <arg name="drone_radius" default="0.7"/>
+
+    <!-- Обнаруживает фронтиры и кластеризует их. -->
+    <node pkg="diplom" type="frontier_detector_node" name="frontier_detector" output="screen">
+        <param name="map_frame" value="$(arg map_frame)"/>
+        <param name="base_frame" value="$(arg base_frame)"/>
+        <param name="octomap_topic" value="$(arg octomap_topic)"/>
+
+        <!-- Как часто запускать цикл обнаружения фронтиров [Гц] -->
+        <param name="update_rate" value="2.0"/>
+
+        <!-- === Параметры Обнаружения Фронтиров === -->
+        <!-- Максимальная разница по высоте (ось Z) между высотой дрона и потенциальной точкой фронтира для её рассмотрения [м] -->
+        <param name="altitude_tolerance"  value="0.5"/>
+        <!-- Максимальное горизонтальное расстояние (плоскость XY) от дрона для поиска фронтиров [м]-->
+        <param name="search_radius_xy"    value="100.0"/>
+        <!-- Минимальное количество свободных соседних ячеек, необходимое для того, чтобы неизвестная ячейка считалась частью фронтира -->
+        <param name="min_free_neighbors"  value="5" type="int"/>
+        <!-- Включить фильтрацию точек фронтира, которые находятся слишком близко к известным препятствиям -->
+        <param name="filter_by_obstacle_distance" value="true" type="bool"/>
+        <!-- Если фильтрация включена, минимальное расстояние, на котором точка фронтира должна находиться от любой занятой ячейки [м]. Должно быть > drone_radius. -->
+        <param name="min_obstacle_distance" value="0.7" type="double"/>
+
+        <!-- === Параметры Кластеризации === -->
+        <!-- Максимальное расстояние между двумя точками фронтира, при котором они считаются частью одного кластера [м] -->
+        <param name="cluster_tolerance"   value="0.8" type="double"/>
+        <!-- Минимальное количество точек фронтира, необходимое для формирования валидного кластера. Фильтрует маленькие/шумные кластеры. -->
+        <param name="min_cluster_size"    value="30" type="int"/>
+        <!-- Максимальное количество точек фронтира, разрешенное в одном кластере. -->
+        <param name="max_cluster_size"    value="10000" type="int"/>
+
+        <!-- === Визуализация и Вывод === -->
+        <!-- Визуальный масштабный коэффициент для маркеров, представляющих отдельные точки фронтира (используется для отладки) -->
+        <param name="frontier_marker_scale" value="0.15"/>
+        <!-- Визуальный масштабный коэффициент для маркеров, представляющих центроиды кластеров. Масштаб по Z часто используется для кодирования размера кластера (количества точек). -->
+        <param name="centroid_marker_scale" value="1.0" type="double"/>
+
+    </node>
+
+
+    <node pkg="diplom" type="target_selector_node" name="target_selector_node" output="screen">
+        <!-- Основные фреймы и топики -->
+        <param name="map_frame" value="$(arg map_frame)"/>
+        <param name="base_frame" value="$(arg base_frame)"/>
+        <param name="octomap_topic" value="$(arg octomap_topic)"/>
+        <param name="drone_radius" value="$(arg drone_radius)"/> <!-- Радиус для проверки безопасности точки -->
+
+        <!-- Топики для обмена данными -->
+        <param name="centroids_topic" value="/frontier_centroids"/> <!-- Вход: маркеры центроидов фронтира -->
+        <param name="selected_target_topic" value="/selected_target_point"/> <!-- Выход: выбранная точка цели -->
+
+        <!-- Частота обновления цикла выбора цели [Гц] -->
+        <param name="update_rate" value="1.0"/> <!-- Уменьшил с 10, чтобы соответствовать rate в коде и не нагружать систему излишне -->
+
+        <!-- === Логика Выбора/Смены Цели === -->
+        <!-- Минимальное требуемое расстояние между дроном и кандидатом в цели [м]. Предотвращает выбор слишком близких точек. -->
+        <param name="min_target_distance" value="1.5"/>
+        <!-- Порог расстояния [м]. Если дрон ближе этого расстояния к *текущей* активной цели, цель считается достигнутой. -->
+        <param name="target_reached_threshold" value="1.0"/>
+        <!-- Насколько лучше (в виде множителя) должна быть оценка нового кандидата по сравнению с оценкой текущей цели, чтобы произошла смена цели. Предотвращает частые переключения. -->
+        <param name="score_improvement_factor" value="1.5"/>
+
+        <!-- === Параметры Оценки Кандидатов (Единая Взвешенная Формула) === -->
+        <!-- Формула: score = W_size * size + W_unknown * unknown_ratio - W_distance * distance -->
+        <!-- Весовой коэффициент для размера кластера (из marker.scale.z) -->
+        <param name="score_weight_size" value="500.0"/>
+        <!-- Весовой коэффициент для доли неизвестных вокселей в окрестности кандидата. -->
+        <param name="score_weight_unknown" value="200.0"/>
+        <!-- Весовой коэффициент для расстояния до кандидата. Умножается на расстояние и *вычитается* из общего счета (штраф за удаленность). -->
+        <param name="score_weight_distance" value="100.0"/>
+
+        <!-- Длина стороны куба [м] с центром в точке-кандидате, используемого для расчета доли неизвестных вокселей ('unknown_ratio'). -->
+        <param name="inf_gain_box_size" value="2.0"/>
+    </node>
+
+
+    <!-- Планирует путь от текущей позы дрона к выбранной цели с помощью OMPL. -->
+    <node pkg="diplom" type="path_planner_node" name="path_planner_node" output="screen">
+        <param name="map_frame" value="$(arg map_frame)"/>
+        <param name="base_frame" value="$(arg base_frame)"/>
+        <param name="octomap_topic" value="$(arg octomap_topic)"/>
+        <param name="drone_radius" value="$(arg drone_radius)"/>
+
+        <param name="selected_target_topic" value="/selected_target_point"/>
+        <param name="planned_path_topic" value="/planned_path"/>
+
+         <!-- Как часто пытаться (пере)планировать путь к текущей цели [Гц] -->
+        <param name="update_rate" value="20.0"/>
+
+        <!-- === Конфигурация Планирования === -->
+        <!-- Максимальное время, разрешенное планировщику OMPL для поиска решения в каждом цикле планирования [секунды] -->
+        <param name="planning_time_limit" value="1.0"/>
+        <!-- Радиус вокруг целевой точки, в пределах которого OMPL считает цель достигнутой [м] -->
+        <param name="goal_tolerance" value="1.0"/>
+         <!-- Использовать ли встроенные в OMPL алгоритмы упрощения пути после нахождения первоначального решения -->
+        <param name="simplify_path" value="false" type="bool"/>
+        <!-- Максимальный возраст полученного сообщения о цели [секунды]. Если последняя цель старше этого значения, планирование останавливается. Предотвращает преследование устаревших целей. -->
+        <param name="target_timeout" value="1.0"/>
+
+        <!-- === Специфичные Параметры OMPL === -->
+        <!-- Выбор конкретного алгоритма планирования OMPL (например, RRTstar, InformedRRTstar, BITstar) -->
+        <param name="ompl_planner_type" value="BITstar"/>
+        <!-- Максимальная длина сегментов движения, генерируемых планировщиком (используется RRT*, BIT* и др.) [м]. Влияет на гранулярность исследования. -->
+        <param name="ompl_range" value="5.0"/>
+        <!-- Вероятность (от 0.0 до 1.0) прямого семплирования целевого состояния (используется RRT-подобными планировщиками). Помогает скорости сходимости. -->
+        <param name="rrt_goal_bias" value="0.05"/>
+
+        <!-- === Границы Планирования (в системе map_frame) === -->
+        <!-- Определяют прямоугольные границы рабочего пространства для планировщика OMPL [метры] -->
+        <param name="map_bound_x_min" value="-100.0"/>
+        <param name="map_bound_x_max" value="100.0"/>
+        <param name="map_bound_y_min" value="-100.0"/>
+        <param name="map_bound_y_max" value="100.0"/>
+
+        <param name="target_update_threshold" value="1"/>
+
+    </node>
+</launch>

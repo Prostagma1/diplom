@@ -1,0 +1,31 @@
+<launch>
+    <node pkg="diplom" type="imu_publisher_node" name="imu_publisher_node" output="screen">
+        <param name="msp_host" value="127.0.0.1"/> 
+        <param name="msp_port" value="5760"/>    
+
+        <param name="imu_frame_id" value="imu_link"/>
+        <param name="imu_update_rate" value="100.0"/> 
+        <param name="timeshift_cam_imu" value="-0.025303186244293514"/> 
+        
+        <param name="raw_acc_to_ms2_scale" value="0.01915361328125"/> 
+        <param name="raw_gyro_to_rads_scale" value="0.017453292519943295"/>
+
+    </node>
+    <node pkg="diplom" type="camera_publisher" name="camera_publisher" output="screen">
+
+        <param name="image_mode" type="string" value="processed" />  <!-- 'resized' or 'processed' -->
+        <param name="fps" type="int" value="20" />
+
+        <param name="camera_resolution/width" type="int" value="640" />
+        <param name="camera_resolution/height" type="int" value="480" />
+
+        <param name="post_processing/gamma" type="double" value="1" /> <!-- >1 делает темнее, <1 светлее -->
+        <param name="post_processing/saturation" type="double" value="1" /> <!-- >1 насыщеннее, <1 бледнее -->
+        <param name="post_processing/contrast" type="double" value="1" /> <!-- >1 контрастнее -->
+
+        <param name="rpc_host" type="string" value="127.0.0.1" />
+        <param name="rpc_port" type="int" value="8080" />
+
+  </node>
+
+</launch>
