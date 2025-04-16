@@ -8,19 +8,17 @@
 #include <thread>
 #include <map>
 #include <string>
-#include <ros/ros.h> // Logging
+#include <ros/ros.h>
 
 // Структура для хранения данных сенсоров
 struct SensorData {
-    // Используем массивы std::array для фиксированного размера
     std::array<double, 3> gyroscope = {0.0, 0.0, 0.0}; // rad/s
     std::array<double, 3> accelerometer = {0.0, 0.0, 0.0}; // m/s^2
     std::array<double, 3> magnetometer = {0.0, 0.0, 0.0}; // Raw units
     double altitude = 0.0; // meters
-    double sonar = 0.0; // meters?
+    double sonar = 0.0; // meters
     std::array<double, 3> kinematics = {0.0, 0.0, 0.0}; // roll, pitch, yaw degrees
     std::array<int16_t, 8> debug = {0}; // Raw debug values
-    // Можно добавить другие поля по мере необходимости (GPS, Battery, etc.)
 
     // Добавим сырые значения для удобства
     std::array<int16_t, 3> raw_gyro = {0};
@@ -179,19 +177,15 @@ public:
     };
 
 
-    explicit MspProtocol(TCPTransmitter& transmitter); // Принимаем ссылку
-
-    // RAII: Соединение в конструкторе (или отдельным методом), разъединение в деструкторе
-    // bool connect(int trials = 100, int delay_ms = 1000); // Сделаем connect внешним
-    // void disconnect(); // Вызовется деструктором TCPTransmitter
+    explicit MspProtocol(TCPTransmitter& transmitter); 
 
     bool fastReadImu();
 
     // Методы для отправки команд
     bool reboot();
     bool sendRawMotors(const std::vector<uint16_t>& motor_values); // 8 моторов
-    bool sendRawRC(const std::vector<uint16_t>& rc_channels); // Обычно 8+ каналов
-
+    bool sendRawRC(const std::vector<uint16_t>& rc_channels);
+    
     // Получение данных сенсоров
     const SensorData& getSensorData() const;
 

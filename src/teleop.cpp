@@ -12,8 +12,8 @@
 #include <cctype>
 #include <stdexcept> // Для std::runtime_error
 
-#include "diplom/msp_protocol.h" // Ваш заголовок
-#include "diplom/tcp_transmitter.h" // Ваш заголовок
+#include "diplom/msp_protocol.h" 
+#include "diplom/tcp_transmitter.h" 
 
 // --- Конфигурация ---
 namespace Config {
@@ -71,12 +71,6 @@ public:
         current_yaw_(Config::RC_VAL_CENTER),
         current_throttle_(Config::INITIAL_THROTTLE)
     {
-        ROS_WARN("!!! SAFETY WARNING !!!");
-        ROS_WARN("Manual RC control via MSP with SMOOTHING and ALWAYS ARMED logic (after init).");
-        ROS_WARN("Roll/Pitch/Yaw return to center when keys released. Throttle is sticky.");
-        ROS_WARN("ARM IS ALWAYS ON after initial sequence - VERY DANGEROUS.");
-        ROS_WARN("Use ONLY in simulator or with EXTREME caution.");
-
         if (!transmitter_.connect()) {
             throw std::runtime_error("Failed to connect to MSP endpoint at " + Config::HOST + ":" + std::to_string(Config::PORT));
         }

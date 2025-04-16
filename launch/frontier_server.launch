@@ -42,7 +42,7 @@
 
     </node>
 
-
+    <!-- Выбор лучшего кандидата. -->
     <node pkg="diplom" type="target_selector_node" name="target_selector_node" output="screen">
         <!-- Основные фреймы и топики -->
         <param name="map_frame" value="$(arg map_frame)"/>

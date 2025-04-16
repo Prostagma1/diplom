@@ -103,7 +103,6 @@ cv::Mat postProcess(cv::Mat image) {
 cv::Mat getCameraCapture(rpc::client& client, int camera_id = 0, bool depth = false) {
     if (!ros::ok()) return cv::Mat();
     try {
-        // Предполагаем, что RPC сервер всегда возвращает BGRA 480x360
         auto result = client.call("getCameraCapture", camera_id, false, depth);
         std::vector<uint8_t> raw_image = result.as<std::vector<uint8_t>>();
         if (!raw_image.empty()) {

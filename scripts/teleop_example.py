@@ -7,7 +7,6 @@ HOST = '127.0.0.1'
 PORT = 5762
 ADDRESS = (HOST, PORT)
 
-# Подключаемся к симулятору/полетному контроллеру
 tcp_transmitter = TCPTransmitter(ADDRESS)
 tcp_transmitter.connect()
 control = MultirotorControl(tcp_transmitter)
@@ -18,8 +17,7 @@ def get_rc_control():
     """Получает значения RC управления на основе ввода с клавиатуры."""
     global trottle
     # Стандартные значения RC: [Крен, Тангаж, Газ, Рыскание, Aux1, Aux2, Aux3, ...]
-    # 1500 - центр для Крена, Тангажа, Рыскания. 1000 - минимальный газ.
-    rc_control = [1500, 1500, trottle, 1500, 2000, 1000, 1000] # Предполагаем Aux1 - ARM, Aux2/3 по умолчанию
+    rc_control = [1500, 1500, trottle, 1500, 2000, 1000, 1000] 
     speed = 200  # Скорость изменения значений для стандартного крена/тангажа
     fast_speed_multiplier = 3 # Множитель для быстрого крена/тангажа
     yaw_speed = 100 # Скорость изменения рыскания

@@ -258,7 +258,6 @@ private:
 
             double dx = new_target_point.x - current_target_x;
             double dy = new_target_point.y - current_target_y;
-            // Сравниваем квадраты расстояний, чтобы избежать sqrt()
             double distance_sq = dx * dx + dy * dy;
             double threshold_sq = target_update_threshold_ * target_update_threshold_;
 

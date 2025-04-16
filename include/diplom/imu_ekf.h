@@ -2,13 +2,12 @@
 #define IMU_EKF_H
 
 #include <Eigen/Dense>
-#include <ros/ros.h> // Time, logging
+#include <ros/ros.h> 
 #include <cmath>
 #include <boost/array.hpp>
 
 class ImuEKF {
 public:
-    // Используем double для точности
     using StateVector = Eigen::Matrix<double, 7, 1>;       // [qw, qx, qy, qz, bgx, bgy, bgz]
     using StateCovariance = Eigen::Matrix<double, 7, 7>;
     using ProcessNoiseCovariance = Eigen::Matrix<double, 7, 7>;

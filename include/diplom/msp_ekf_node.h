@@ -8,7 +8,7 @@
 #include "tcp_transmitter.h"
 #include "msp_protocol.h"
 #include "imu_ekf.h"
-#include <memory> // For std::unique_ptr
+#include <memory> 
 
 class MspEkfNode {
 public:
@@ -39,7 +39,7 @@ private:
     int msp_port_;
     std::string imu_frame_id_;
     double imu_update_rate_;
-    double low_freq_rate_; // Не используется активно в этой версии, но параметр есть
+    double low_freq_rate_;
     double timeshift_cam_imu_;
     double acc_noise_density_;
     double acc_random_walk_;
