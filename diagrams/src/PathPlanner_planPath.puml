@@ -1,0 +1,19 @@
+@startuml 
+start
+:Вход: start_pose, goal_point, simplify_flag;
+:Настроить OMPL Problem Definition\n(Start, Goal, Objective);
+:Запустить OMPL Planner;
+if (Решение найдено?) then (да)
+    :Получить OMPL PathGeometric;
+    if (simplify_flag == true?) then (да)
+        :Упростить PathGeometric;
+    endif
+    :Конвертировать OMPL Path\nв nav_msgs::Path;
+    :Сохранить результат в result_path;
+    :Вернуть **true**;
+else (нет)
+    :Вернуть **false**;
+endif
+stop
+
+@enduml

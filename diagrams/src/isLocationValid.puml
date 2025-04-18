@@ -1,0 +1,20 @@
+@startuml
+start
+:Вход: Точка (point);
+:Проверить наличие карты (octree_);
+if (Карта есть?) then (да)
+    :Определить центр проверки (point.x, point.y, current_altitude_);
+    :Определить BBox вокруг центра (с радиусом drone_radius_);
+    :Итерация по занятым узлам в BBox;
+    if (Найден занятый узел?) then (да)
+        :Вернуть false (невалидно);
+        stop
+    endif
+    :Конец итерации;
+    :Вернуть true (валидно);
+else (нет)
+    :Вернуть false (невалидно);
+endif
+stop
+
+@enduml

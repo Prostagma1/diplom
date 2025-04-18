@@ -1,0 +1,34 @@
+@startuml
+start
+    partition getCameraCapture {
+        :Вызов RPC "getCameraCapture";
+        if (RPC успешно?) then (Да)
+            :Получение raw_image (vector<uint8_t>);
+            if (Размер данных корректен?) then (Да)
+                :Конвертация BGRA -> BGR (cv::Mat);
+                 if (Разрешение отличается от целевого?) then (Да)
+                    :Resize изображения (cv::resize);
+                 else (Нет)
+                 endif
+                if (g_imageMode == "processed"?) then (Да)
+                    :Постобработка (postProcess);
+                     note right
+                         Гамма,
+                         Контраст,
+                         Насыщенность
+                     end note
+                endif
+                :Возврат обработанного cv::Mat;
+            else (Нет)
+                :Лог ошибки размера;
+                :Возврат пустого cv::Mat;
+            endif
+        else (Нет, ошибка RPC)
+            :Лог ошибки RPC;
+            :Возврат пустого cv::Mat;
+        endif
+    }
+
+stop
+
+@enduml

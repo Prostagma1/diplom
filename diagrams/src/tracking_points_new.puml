@@ -1,0 +1,13 @@
+start
+  :Получить список MapPoints (мир. коорд.);
+  :Получить трансформацию Tcw (World -> Camera);
+  :Получить camera_frame_id;
+  while (Есть еще MapPoint mp в списке?) is (да)
+    :Получить MapPoint mp;
+    :P3Dw = mp->GetWorldPos();
+    :P3Dc = Tcw * P3Dw; 
+    :Добавить P3Dc в PointCloud2;
+  endwhile (нет)
+  :Установить frame_id = camera_frame_id;
+  :Вернуть PointCloud2;
+  stop

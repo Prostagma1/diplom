@@ -1,0 +1,18 @@
+@startuml 
+start
+  :Получить копию OctoMap;
+  :Получить позу дрона (getCurrentDronePose);
+  if (Поза получена?) then (да)
+    :Найти сырые фронтиры\n(findFrontiers);
+    if (Фильтровать по близости к препятсвиям?) then (да)
+      :filterFrontiersByObstacleDistance;
+    endif
+    :Кластеризовать фронтиры\n(clusterFrontiersPCL)\n--> центроиды, размеры;
+    :Опубликовать маркеры фронтиров;
+    :Опубликовать маркеры центроидов;
+  else (нет)
+    :Пропустить цикл;
+  endif
+stop
+
+@enduml

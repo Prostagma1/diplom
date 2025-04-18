@@ -1,0 +1,68 @@
+@startuml
+start
+:Проверить наличия OctoMap (have_map_) и \nПолучить текущую позу дрона;
+if (Карта есть и поза получена?) then (да)
+    :Обновить высоту валидации (target_validator_.setCurrentAltitude);
+
+    if (Есть активная цель (active_target_)? ) then (да)
+      :Проверить валидность цели (target_validator_.isLocationValid);
+      :Проверить достижение цели (расстояние < target_reached_threshold_);
+      if (Валидна И НЕ достигнута?) then (да)
+        :Оставить цель активной;
+        :publish_target = true;
+      else (нет)
+        :Сбросить активную цель (active_target_.reset());
+        :active_target_score_ = -1.0;
+        :publish_target = false;
+      endif
+    else (нет)
+      :publish_target = false;
+    endif
+
+    :Получить список центроидов (копия latest_centroids_);
+    if (Есть центроиды?) then (да)
+      :Найти лучшего кандидата (findBestScoringCandidate);
+      if (Лучший кандидат найден?) then (да)
+        :Получить инфо и score;
+        if (Есть активная цель?) then (да)
+          if (score_new > score_active * factor?) then (да)
+            :Обновить активную цель;
+            :Обновить score;
+            :publish_target = true;
+          else (нет)
+          endif
+        else (нет)
+          :Сделать кандидата активной целью;
+          :Обновить score;
+          :publish_target = true;
+        endif
+      else (нет)
+         if (Нет активной цели?) then (да)
+          :Очистить визуализацию;
+         endif
+      endif
+    else (нет)
+      if (Нет активной цели?) then (да)
+        :Очистить визуализацию;
+        stop
+      endif
+    endif
+
+    if (publish_target И есть активная цель?) then (да)
+      :Опубликовать активную цель;
+      :Опубликовать визуализацию (кандидаты + цель);
+    else if (НЕТ активной цели?) then (да)
+       :Очистить визуализацию;
+    else (нет)
+       :Опубликовать визуализацию (кандидаты + цель);
+    endif
+
+
+else (нет)
+  :Очистить визуализацию;
+  :Сбросить активную цель;
+  stop
+endif
+stop
+
+@enduml

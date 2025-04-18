@@ -1,0 +1,44 @@
+@startuml
+participant System
+participant Atlas
+participant Map
+
+System -> Atlas : GetAllMapPointsAsPCL()
+activate Atlas
+
+Atlas -> Atlas : Lock mMutexAtlas
+
+Atlas -> Atlas : Получить указатель на текущую Map (pCurrent)
+
+Atlas -> Atlas : Unlock mMutexAtlas
+
+alt pCurrent существует?
+    Atlas -> Map : GetAllMapPointsSafeAsPCL()
+    activate Map
+
+    Map -> Map : Создать пустое облако PCL (resultCloud)
+
+    Map -> Map : Lock mMutexMap
+
+    loop Для каждого MapPoint pMP в mspMapPoints
+        Map -> Map : Получить следующий MapPoint pMP
+        opt pMP валидна (не isBad)?
+            Map -> Map : Получить pMP->GetWorldPos() (worldPos)
+            Map -> Map : Добавить worldPos в resultCloud
+        end
+    end
+
+    Map -> Map : Unlock mMutexMap
+
+    Map --> Atlas : resultCloud (собранное облако PCL)
+    deactivate Map
+
+else pCurrent == nullptr
+    Atlas -> Atlas : Создать пустое облако PCL (emptyCloud)
+    Atlas --> System : emptyCloud
+end
+
+Atlas --> System : resultCloud (или emptyCloud)
+deactivate Atlas
+
+@enduml

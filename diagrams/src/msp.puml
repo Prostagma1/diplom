@@ -1,0 +1,46 @@
+@startuml
+skinparam handwritten true
+skinparam defaultFontName "Segoe UI"
+skinparam sequenceMessageAlign center
+
+participant Client
+participant MspProtocol as MSP
+participant TCPTransmitter as TCP
+participant FlightController as FC
+
+== Отправка сообщения ==
+Client -> MSP : sendRawMsg(code, data)
+MSP -> MSP : Собрать сообщение (Header, Size, Code, Data)
+MSP -> MSP : calculateChecksum(size, code, data)
+MSP -> MSP : Добавить CRC
+MSP -> TCP : send(message)
+TCP -> FC : Передать байты
+TCP --> MSP : Статус отправки
+MSP --> Client : Вернуть результат (true/false)
+
+== Получение сообщения ==
+Client -> MSP : receiveRawMsg(expected_size)
+MSP -> TCP : receive(total_size)
+TCP <- FC : Получить байты
+TCP --> MSP : Вернуть байты
+MSP -> MSP : Проверить Header, Size
+MSP -> MSP : Извлечь Payload
+MSP -> MSP : calculateChecksum(size, code, payload)
+MSP -> MSP : Сравнить CRC
+MSP --> Client : Вернуть payload или {}
+
+== Пример: Отправка моторов ==
+Client -> MSP : sendRawMotors(values)
+MSP -> MSP : packData(values)
+MSP -> MSP : sendRawMsg(MSP_SET_MOTOR, packed_data)
+note right : Использует sendRawMsg flow
+MSP --> Client : Вернуть результат
+
+== Пример: Чтение IMU ==
+Client -> MSP : fastReadImu()
+MSP -> MSP : receiveRawMsg(18)
+note right : Использует receiveRawMsg flow
+MSP -> MSP : Распаковать данные в sensor_data_
+MSP --> Client: Вернуть результат
+
+@enduml

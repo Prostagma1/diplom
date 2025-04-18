@@ -1,0 +1,36 @@
+@startuml
+start
+:Вход: Поза, Кандидаты, Карта, Разрешение;
+:Проверка вх. данных (кандидаты, карта);
+if (Данные корректны?) then (да)
+  :max_score = -infinity;
+  :best_candidate = null;
+
+  while (Есть еще кандидаты для проверки?) is (да)
+    :Взять следующего кандидата;
+    :Получить точку кандидата;
+    :Проверить валидность (isLocationValid);
+    if (Валиден?) then (да)
+      :Рассчитать расстояние до дрона;
+      if (Расстояние > min_dist?) then (да)
+        :Рассчитать долю неизв. вокселей (calculateUnknownVolumeRatio);
+        :Рассчитать score (вес_размер*размер + вес_неизв*неизв - вес_дист*дист);
+        if (score > max_score?) then (да)
+          :max_score = score;
+          :best_candidate = текущий кандидат;
+        endif
+      endif
+    endif
+  endwhile (нет)
+
+  if (best_candidate != null?) then (да)
+    :Вернуть {best_candidate, max_score};
+  else (нет)
+    :Вернуть nullopt;
+  endif
+else (нет)
+  :Вернуть nullopt;
+endif
+stop
+
+@enduml

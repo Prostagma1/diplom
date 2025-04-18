@@ -1,0 +1,10 @@
+ start
+  :Получить список MapPoints (мир. коорд.);
+  while (Есть еще MapPoint mp в списке?) is (да)
+    :Получить MapPoint mp;
+    :P3Dw = mp->GetWorldPos();
+    :Добавить P3Dw в PointCloud2;
+  endwhile (нет)
+  :Установить frame_id (вероятно "world");
+  :Вернуть PointCloud2;
+  stop

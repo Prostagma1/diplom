@@ -1,0 +1,22 @@
+@startuml 
+start
+:Вход: Сообщение PointStamped (msg);
+if (Frame ID != map_frame_id?) then (да)
+    :Игнорировать;
+    stop
+endif
+:lock(target_mutex_);
+if (Уже есть активная цель?) then (да)
+    :Вычислить расстояние до новой цели;
+    if (Расстояние < target_update_threshold?) then (да)
+        :Обновить только timestamp цели;
+        :unlock(target_mutex_);
+        stop
+    endif
+endif
+:Сохранить новую цель (latest_target_point_);
+:Установить флаг has_active_target_ = true;
+:unlock(target_mutex_);
+stop
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml 
+start
+:Вход: Карта, Центр, Разрешение (resolution), Полуразмер куба;
+if (Входные данные валидны?) then (нет)
+  :Вернуть 0.0;
+  stop
+endif
+
+:Определить границы куба (min_point, max_point);
+:unknown_count = 0
+total_count = 0;
+
+partition "Перебор Вокселей в Кубе" {
+    : **Для каждого (ix, iy, iz) от min_point до max_point с шагом resolution** ;
+        :total_count++;
+        :Искать узел в карте по (ix, iy, iz);
+        if (Узел == null?) then (да)
+            :unknown_count++;
+        endif;
+    : **Конец цикла** ;
+}
+
+if (total_count > 0?) then (да)
+  :ratio = unknown_count / total_count;
+  :Вернуть ratio;
+else (нет)
+  :Вернуть 0.0;
+endif
+stop
+
+@enduml

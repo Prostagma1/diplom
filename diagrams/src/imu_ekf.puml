@@ -1,0 +1,33 @@
+@startuml
+start
+
+:predict(gyro_meas, current_time);
+
+:Вычислить dt;
+
+partition "1. Предсказание Состояния (x)" {
+  :Взять текущие q, b_g из x;
+  :Скорректировать гироскоп: gyro_corr = gyro_meas - b_g;
+  :Интегрировать ориентацию: delta_q = exp(gyro_corr * dt);
+  :Предсказать ориентацию: q_pred = normalize(q * delta_q);
+  :Предсказать смещение: b_g_pred = b_g (случайное блуждание);
+  :Обновить вектор состояния x;
+}
+
+partition "2. Вычисление Якобиана (F)" {
+   :Вычислить F_qq (d(q_pred)/d(q));
+   :Вычислить F_qb (d(q_pred)/d(b_g));
+   note right: F_bb = I, F_bq = 0
+   :Собрать матрицу F;
+}
+
+partition "3. Предсказание Ковариации (P)" {
+   :Масштабировать шум процесса: Q_scaled = Q * (dt / dt_nominal);
+   :Предсказать ковариацию: P = F * P * F^T + Q_scaled;
+}
+
+:Обновить last_time;
+
+stop
+
+@enduml

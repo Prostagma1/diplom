@@ -1,0 +1,22 @@
+@startuml 
+
+start
+:Вход: Состояние OMPL (state);
+if (OctoMap == null?) then (да)
+    :Вернуть **false**;
+    stop
+else (нет)
+    :Извлечь (x, y) из state;
+    :z = planning_altitude;
+    :Определить Bounding Box (BBX)\nвокруг (x, y, z) с радиусом drone_radius;
+    while (Итерация по листьям OctoMap в BBX) is (есть еще лист?)
+        if (Лист занят?) then (да)
+            :Вернуть **false**;
+            stop
+        endif
+    endwhile (нет больше листьев)
+    :Вернуть **true**;
+    stop
+endif
+
+@enduml
