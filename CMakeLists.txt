@@ -13,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs          # Сообщения для навигации (Odometry, Path, MapMetaData)
   octomap_msgs      # Сообщения для OctoMap
   octomap_ros       # ROS обертка для OctoMap (конвертеры)
-  pcl_conversions   # Для конвертации ROS PointCloud2 <-> PCL PointCloud
-  pcl_ros           # Утилиты PCL для ROS
   roscpp            # Клиентская библиотека ROS C++
   rospy             # Клиентская библиотека ROS Python (для скриптов)
   sensor_msgs       # Стандартные сообщения сенсоров (Image, Imu, PointCloud2, etc.)
@@ -38,7 +36,7 @@ catkin_package(
   INCLUDE_DIRS include             # Публичные заголовки 
   CATKIN_DEPENDS                   # ROS зависимости
     cv_bridge geometry_msgs image_transport nav_msgs octomap_msgs octomap_ros
-    pcl_conversions pcl_ros roscpp rospy sensor_msgs std_msgs
+    roscpp rospy sensor_msgs std_msgs
     tf2_geometry_msgs tf2_ros visualization_msgs 
   DEPENDS                          # Системные зависимости
     OpenCV octomap
@@ -112,13 +110,12 @@ target_link_libraries(teleop
 )
 add_dependencies(teleop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-# 7. PCD filter (C++)
-add_executable(pcd_filter_node src/pcd_filter_node.cpp)
-target_link_libraries(pcd_filter_node
+# 7. PLY filter (C++)
+add_executable(ply_filter_node src/ply_filter_node.cpp)
+target_link_libraries(ply_filter_node
   ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
 )
-add_dependencies(pcd_filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(ply_filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # --- Installation Rules ---
 
@@ -135,5 +132,6 @@ install(TARGETS
   frontier_detector_node
   path_planner_node
   target_selector_node
+  ply_filter_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION} 
 )

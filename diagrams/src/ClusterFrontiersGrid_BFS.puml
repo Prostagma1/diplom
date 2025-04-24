@@ -1,0 +1,29 @@
+@startuml 
+start
+:Создать очередь q, cluster_indices;
+:Добавить i в q, cluster_indices;
+:Пометить visited[i] = true;
+
+while (q не пуста?) is (да)
+  :Взять curr_idx из q;
+  :Получить curr_point, curr_voxel;
+   while (каждый соседний воксель neigh_voxel в 3x3x3)
+    if (neigh_voxel в grid_map?) then (да)
+      while (каждая точка neigh_idx в neigh_voxel)
+        if (точка neigh_idx не visited?) then (да)
+          :Получить neigh_point;
+          if (расстояние(curr_point, neigh_point) <= порог?) then (да)
+             :Пометить visited[neigh_idx] = true;
+             :Добавить neigh_idx в q;
+             :Добавить neigh_idx в cluster_indices;
+          endif
+        endif
+      endwhile
+    endif
+  endwhile
+endwhile (нет)
+
+:Вернуть cluster_indices;
+stop
+
+@enduml

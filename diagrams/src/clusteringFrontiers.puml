@@ -1,0 +1,27 @@
+@startuml 
+start
+:Вход: frontiers;
+if (frontiers пуст?) then (да)
+  stop
+else (нет)
+  :Найти min/max коорд.;
+  :Определить cell_size;
+  :Создать grid_map (индекс ячейки -> точки);
+  :Распределить точки frontiers по grid_map;
+  :Создать visited;
+  repeat :Итерация по точкам i в frontiers;
+    if (точка i не visited?) then (да)
+      :**BFS для поиска кластера**;
+      :Получить cluster_indices;
+      :Вычислить cluster_size;
+      if (cluster_size валиден?) then (да)
+        :Вычислить центроид;
+        :Добавить (центроид, cluster_size) в centroid_info;
+      endif
+    endif
+  repeat while (есть еще точки?) is (да)
+  :Выход: centroid_info;
+  stop
+endif
+
+@enduml

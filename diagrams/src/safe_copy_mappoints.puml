@@ -1,44 +1,64 @@
 @startuml
+
 participant System
 participant Atlas
 participant Map
+participant FileSystem as FS
 
-System -> Atlas : GetAllMapPointsAsPCL()
+System -> Atlas : SaveMapAsPly(filename)
 activate Atlas
 
 Atlas -> Atlas : Lock mMutexAtlas
-
-Atlas -> Atlas : Получить указатель на текущую Map (pCurrent)
-
+Atlas -> Atlas : Get current Map pointer (pCurrent)
 Atlas -> Atlas : Unlock mMutexAtlas
 
-alt pCurrent существует?
-    Atlas -> Map : GetAllMapPointsSafeAsPCL()
+alt pCurrent exists?
+    Atlas -> Map : SaveAllMapPointsAsPly(filename)
     activate Map
 
-    Map -> Map : Создать пустое облако PCL (resultCloud)
+    Map -> Map : Create empty vector valid_points
 
     Map -> Map : Lock mMutexMap
-
-    loop Для каждого MapPoint pMP в mspMapPoints
-        Map -> Map : Получить следующий MapPoint pMP
-        opt pMP валидна (не isBad)?
-            Map -> Map : Получить pMP->GetWorldPos() (worldPos)
-            Map -> Map : Добавить worldPos в resultCloud
+    loop For each MapPoint pMP in mspMapPoints
+        opt pMP is valid (not null and not isBad)
+            Map -> Map : Get worldPos = pMP->GetWorldPos()
+            Map -> Map : Add worldPos to valid_points
         end
     end
 
     Map -> Map : Unlock mMutexMap
 
-    Map --> Atlas : resultCloud (собранное облако PCL)
-    deactivate Map
+    alt valid_points is empty?
+        Map --> Atlas : false (No points to save)
+        deactivate Map
+        Atlas -> Atlas : Set saveStatus = false
+    else valid_points is not empty
+        Map -> FS : Open file (filename) for writing
+        activate FS
+        alt File opened successfully?
+            FS --> Map : File handle
+            Map -> FS : Write PLY Header (with valid_points.size())
+            Map -> FS : Write each point from valid_points
+            Map -> FS : Close file
+            FS --> Map : Write status (OK)
+            deactivate FS
+            Map --> Atlas : true (Save successful)
+            deactivate Map
+            Atlas -> Atlas : Set saveStatus = true
+        else File open failed
+            FS --> Map : Error
+            deactivate FS
+            Map --> Atlas : false (File open error)
+            deactivate Map
+            Atlas -> Atlas : Set saveStatus = false
+        end
+    end
 
 else pCurrent == nullptr
-    Atlas -> Atlas : Создать пустое облако PCL (emptyCloud)
-    Atlas --> System : emptyCloud
+    Atlas -> Atlas : Set saveStatus = false (No map)
 end
 
-Atlas --> System : resultCloud (или emptyCloud)
+Atlas --> System : saveStatus (true/false)
 deactivate Atlas
 
 @enduml
