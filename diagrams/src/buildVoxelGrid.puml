@@ -1,0 +1,17 @@
+@startuml
+start
+:Получить: Облако точек (cloud), Размер листа (leaf_size), Границы (bbox);
+:Создать пустую карту вокселей (grid);
+if (bbox невалиден ИЛИ leaf_size <= 0?) then (да)
+  :Вернуть пустую grid;
+  stop
+endif
+:Вычислить inv_leaf_size = 1.0 / leaf_size;
+while (Для каждой точки p с индексом i в cloud)
+  :Вычислить индекс вокселя (ix, iy, iz):\nix = floor((p.x - bbox.min_pt.x) * inv_leaf_size)\niy = floor((p.y - bbox.min_pt.y) * inv_leaf_size)\niz = floor((p.z - bbox.min_pt.z) * inv_leaf_size);
+  :Добавить индекс точки i в список для вокселя {ix, iy, iz} в grid;
+endwhile
+:Вернуть grid;
+stop
+
+@enduml

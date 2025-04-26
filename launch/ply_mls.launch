@@ -1,0 +1,29 @@
+<launch>
+    <node name="ply_mls_node" pkg="diplom" type="ply_mls_node" output="screen" required="true">
+        <!-- Обязательный параметр: Путь к входному PLY файлу -->
+        <param name="input_ply_path" value="/home/prostagma/orb_maps/small_map_ror_filtred.ply" />
+
+        <!-- Необязательный параметр: Путь к выходному PLY файлу -->
+        <!-- Если не указан, будет сгенерирован автоматически  -->
+        <!-- <param name="output_ply_path" value="/home/prostagma/orb_maps/out_cpp_mls.ply" /> -->
+
+        <!-- Перезаписывать ли выходной файл, если он существует -->
+        <param name="overwrite_output" value="true" />
+
+        <!-- Количество ближайших соседей для аппроксимации поверхности -->
+        <param name="k" value="20" />
+
+        <!-- Множитель для оценки радиуса h (h = factor * avg_dist_to_knn_for_radius) -->
+        <param name="radius_factor" value="0.5" /> 
+
+        <!-- Разрешение сетки реконструкции вдоль самого длинного измерения bbox -->
+        <param name="grid_res" value="130" /> 
+
+        <!-- Дополнительное расширение bbox сетки (в долях от размера) -->
+        <param name="padding" value="0.05" />
+
+        <!-- Количество соседей для оценки среднего расстояния (для вычисления h) -->
+        <param name="knn_for_radius" value="6" /> 
+
+    </node>
+</launch>

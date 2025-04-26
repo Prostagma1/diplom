@@ -1,0 +1,25 @@
+@startuml 
+start
+:Вход: query, k, cloud, grid, params;
+:neighbors = empty list;
+:Определить индекс вокселя query (ix, iy, iz);
+while (Для каждого вокселя в окне 3x3x3 вокруг (ix,iy,iz))
+  if (Воксель есть в grid?) then (да)
+    while (Для каждого point_idx в вокселе)
+      :dist_sq = distance_sq(query, cloud[point_idx]);
+      if (dist_sq < max_dist_sq?) then (да)
+        :neighbors.add({dist_sq, point_idx});
+      endif
+    endwhile
+  endif
+endwhile
+if (neighbors.size > k?) then (да)
+  :Частичная сортировка (топ k);
+  :Обрезать neighbors до k;
+else (нет)
+  :Полная сортировка neighbors;
+endif
+:return neighbors;
+stop
+
+@enduml

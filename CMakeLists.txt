@@ -110,12 +110,21 @@ target_link_libraries(teleop
 )
 add_dependencies(teleop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-# 7. PLY filter (C++)
-add_executable(ply_filter_node src/ply_filter_node.cpp)
+# 7. PLY ror filter (C++)
+add_executable(ply_filter_node src/ply_filter_node.cpp
+                               src/pointcloud_utils.cpp)
 target_link_libraries(ply_filter_node
   ${catkin_LIBRARIES}
 )
 add_dependencies(ply_filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# 8. PLY mls (C++)
+add_executable(ply_mls_node src/ply_mls_node.cpp
+                            src/pointcloud_utils.cpp)
+target_link_libraries(ply_mls_node
+  ${catkin_LIBRARIES}
+)
+add_dependencies(ply_mls_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # --- Installation Rules ---
 
@@ -133,5 +142,6 @@ install(TARGETS
   path_planner_node
   target_selector_node
   ply_filter_node
+  ply_mls_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION} 
 )

@@ -1,0 +1,20 @@
+@startuml 
+start
+:total_avg_dist_sq = 0, count = 0;
+while (Для каждой точки p_i в cloud_in)
+  :**Найти KNN (knn_h) для p_i -> neighbors_h**;
+  :Вычислить avg_dist_sq для neighbors_h;
+  if (Соседи найдены?) then (да)
+   :total_avg_dist_sq += avg_dist_sq;
+   :count++;
+  endif
+endwhile
+if (count == 0?) then (да)
+  stop
+endif
+:avg_knn_dist = sqrt(total_avg_dist_sq / count);
+:h = radius_factor * avg_knn_dist
+h_squared = h * h;
+stop
+
+@enduml

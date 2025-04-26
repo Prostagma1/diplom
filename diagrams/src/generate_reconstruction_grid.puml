@@ -1,0 +1,19 @@
+@startuml 
+start
+:Расширить BBox (padding);
+:Определить размер BBox (padded_size);
+:max_dim = max(padded_size.x, y, z);
+if (max_dim <= 0?) then (да)
+  :Error;
+  detach
+endif
+:grid_step = max_dim / (res - 1);
+:Определить кол-во узлов (count_x, y, z);
+:grid_points = empty;
+while (Цикл по ix, iy, iz (0..count-1))
+  :point = padded_bbox.min + (ix,iy,iz) * grid_step;
+  :grid_points.add(point);
+endwhile
+stop
+
+@enduml

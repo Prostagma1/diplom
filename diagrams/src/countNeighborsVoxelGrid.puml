@@ -1,0 +1,28 @@
+@startuml
+
+start
+:Инициализация neighbor_count = 0;
+:Получить query_point;
+:Вычислить индекс центрального вокселя (center_ix, iy, iz);
+
+while (Цикл по 3x3x3 вокселям (dx, dy, dz от -1 до 1))
+    :Вычислить индекс соседнего вокселя (neighbor_voxel_idx);
+    if (Воксель neighbor_voxel_idx найден в grid?) then (Да)
+        :Получить список point_indices из вокселя;
+while (Цикл по candidate_idx в point_indices)
+    if (candidate_idx == query_idx?) then (Да)
+        :Пропустить;
+    else (Нет)
+        :Вычислить distance_sq(query_point, cloud[candidate_idx]);
+        if (distance_sq <= radius_search_sq?) then (Да)
+            :Увеличить neighbor_count;
+        endif
+    endif
+endwhile
+    endif
+endwhile
+
+:Вернуть neighbor_count;
+stop
+
+@enduml

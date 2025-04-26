@@ -1,21 +1,25 @@
 <launch>
-    <node name="ply_filter" pkg="diplom" type="ply_filter_node" output="screen" required="true">
+    <node name="ply_filter_node" pkg="diplom" type="ply_filter_node" output="screen" required="true">
 
-        <param name="input_ply_path" value="/home/prostagma/orb_maps/sdsadasdsadasdsadas.ply"/>
+        <!-- Обязательный параметр: Путь к входному PLY файлу -->
+        <param name="input_ply_path" value="/home/prostagma/orb_maps/small_map_RAW_for_DIPLOM.ply"/>
 
-        <!-- <param name="output_ply_path" value="/home/prostagma/orb_maps/sdsadasdsadasdsadas_filtered.ply"/> -->
+        <!-- Необязательный параметр: Путь к выходному PLY файлу -->
+        <!-- Если не указан, будет сгенерирован автоматически -->
+        <!-- <param name="output_ply_path" value="/home/prostagma/orb_maps/output_ror_filtered.ply"/> -->
 
         <!-- Перезаписывать ли выходной файл, если он существует -->
         <param name="overwrite_output" value="true"/>
 
-        <!-- Параметры для фильтра ROR -->
         <!-- Радиус поиска соседей -->
-        <param name="ror_radius_search" value="0.5"/>
+        <param name="radius_search" value="0.5"/> 
+
         <!-- Минимальное количество соседей в радиусе для сохранения точки -->
-        <param name="ror_min_neighbors" value="3"/>
-        <!-- Необязательный параметр: Размер листа воксельной сетки -->
-        <!-- Если не указан или <= 0, будет равен ror_radius_search -->
-        <param name="ror_voxel_leaf_size" value="0"/>
+        <param name="min_neighbors" value="3"/> 
+
+        <!-- Размер листа воксельной сетки -->
+        <!-- Если не указан или <= 0, будет равен radius_search -->
+        <param name="voxel_leaf_size" value="0.5"/> 
 
     </node>
 </launch>
